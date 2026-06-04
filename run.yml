@@ -1,4 +1,5 @@
-name: Run Node App
+
+name: Run SafeRide App
 
 on:
   push:
@@ -23,7 +24,7 @@ jobs:
         cd backend
         npm install
 
-    - name: Run App
+    - name: Run Server
       run: |
         cd backend
         node server.js
