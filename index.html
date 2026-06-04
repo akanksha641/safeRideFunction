@@ -5,8 +5,7 @@
     <title>Bus Assist App</title>
 
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-
+   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
     <style>
         body {
             font-family: Arial;
@@ -97,10 +96,75 @@ function showPosition(position) {
         map.setView([lat, lon]);
     }
 }
+// ✅Distant and time
+
+let currentLat, currentLon;
+let destLat, destLon;
+
+    if (data.length > 0) {
+
+        destLat = parseFloat(data[0].lat);   // ✅ store destination
+        destLon = parseFloat(data[0].lon);
+
+        map.setView([destLat, destLon], 15);
+
+        L.marker([destLat, destLon]).addTo(map)
+            .bindPopup("Destination: " + place)
+            .openPopup();
+
+        alert("✅ Location found: " + place);
+
+        // ✅ CALCULATE DISTANCE + TIME HERE
+        calculateDistanceAndTime();
+
+    } else {
+        alert("❌ Location not found");
+    }
+}
+
+function calculateDistanceAndTime() {
+
+    if (currentLat && currentLon && destLat && destLon) {
+
+        let distance = calculateDistance(currentLat, currentLon, destLat, destLon);
+
+        let speed = 30; // km/h
+        let time = (distance / speed) * 60;
+
+        alert(
+            "📍 Distance: " + distance.toFixed(2) + " km\n" +
+            "⏱️ Time: " + time.toFixed(1) + " minutes"
+        );
+    }
+}
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+}
+
 
 // ✅ SEARCH LOCATION FUNCTION
+
 async function searchLocation() {
     const place = document.getElementById("searchBox").value;
+
+    if (!map) {
+        alert("⚠️ Please click 'Start Tracking' first");
+        return;
+    }
 
     const response = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${place}`
@@ -109,23 +173,21 @@ async function searchLocation() {
     const data = await response.json();
 
     if (data.length > 0) {
-        const lat = data[0].lat;
-        const lon = data[0].lon;
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
 
-        // Move map to searched location
         map.setView([lat, lon], 15);
 
-        // Add marker for search
         L.marker([lat, lon]).addTo(map)
             .bindPopup("Searched: " + place)
             .openPopup();
 
-        alert("Location found: " + place);
-
+        alert("✅ Location found: " + place);
     } else {
-        alert("Location not found");
+        alert("❌ Location not found");
     }
 }
+
 
 // ✅ EMERGENCY BUTTON
 function emergency() {
