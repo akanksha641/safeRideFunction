@@ -3,7 +3,18 @@
 <html>
 <head>
     <title>SafeRide Assist</title>
+
+    <!-- ✅ Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+        }
+    </style>
 </head>
+
 <body>
 
 <h1>🚍 SafeRide Assist</h1>
@@ -15,26 +26,27 @@
 
 <p id="location"></p>
 
-<iframe id="map"
-    width="100%"
-    height="300"
-    style="border:1px solid black;">
-</iframe>
+<!-- ✅ Map Container -->
+<div id="map"></div>
+
+<!-- ✅ Leaflet JS -->
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
 
-let watchId;
+let map;
+let marker;
 
-// ✅ Start LIVE tracking
+// ✅ Start tracking
 function startTracking() {
     if (navigator.geolocation) {
-        watchId = navigator.geolocation.watchPosition(showPosition);
+        navigator.geolocation.watchPosition(showPosition);
     } else {
         alert("Geolocation not supported");
     }
 }
 
-// ✅ Update position continuously
+// ✅ Show and update position
 function showPosition(position) {
     let lat = position.coords.latitude;
     let lon = position.coords.longitude;
@@ -42,12 +54,26 @@ function showPosition(position) {
     document.getElementById("location").innerHTML =
         "📍 Latitude: " + lat + "<br>Longitude: " + lon;
 
-    // ✅ Update map every time you move
-    document.getElementById("map").src =
-        "https://maps.google.com/maps?q=" + lat + "," + lon + "&z=15&output=embed";
+    // ✅ First time → create map
+    if (!map) {
+        map = L.map('map').setView([lat, lon], 15);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19
+        }).addTo(map);
+
+        marker = L.marker([lat, lon]).addTo(map)
+            .bindPopup("You are here")
+            .openPopup();
+    } 
+    else {
+        // ✅ Move marker
+        marker.setLatLng([lat, lon]);
+        map.setView([lat, lon]);
+    }
 }
 
-// ✅ Emergency button
+// ✅ Emergency
 function emergency() {
     alert("🚨 Emergency Alert Sent!");
 }
