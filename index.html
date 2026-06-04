@@ -1,9 +1,9 @@
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Bus Assist App</title>
+    <title>GPS App</title>
 
-    <!-- ✅ Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
     <style>
@@ -18,134 +18,87 @@
             margin-top: 10px;
         }
 
+        #result {
+            margin-top: 15px;
+            font-size: 18px;
+            background: #f0f8ff;
+            padding: 10px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
         input {
             padding: 8px;
-            width: 250px;
+            width: 200px;
         }
 
         button {
-            padding: 8px 12px;
-            margin: 5px;
+            padding: 8px;
         }
     </style>
 </head>
 
 <body>
 
-<h2>🚍 Bus Assist App</h2>
+<h2>GPS Tracking App</h2>
 
-<!-- ✅ Buttons -->
-<button onclick="startTracking()">Start Tracking</button>
-<button onclick="emergency()">Emergency</button>
+<p id="location">Getting location...</p>
 
-<br><br>
-
-<!-- ✅ Location Display -->
-<div id="location">Location: Not started</div>
-
-<br>
-
-<!-- ✅ Search -->
 <input type="text" id="searchBox" placeholder="Enter location">
 <button onclick="searchLocation()">Search</button>
 
-<!-- ✅ Map -->
+<!-- ✅ RESULT WILL SHOW HERE -->
+<div id="result">Distance & time will appear here</div>
+
 <div id="map"></div>
 
-<!-- ✅ Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-
-// ✅ GLOBAL VARIABLES
-let map;
-let marker;
-
 let currentLat, currentLon;
 let destLat, destLon;
+let map, marker;
 
-// ✅ START TRACKING
-function startTracking() {
-    if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(showPosition, showError);
-    } else {
-        alert("Geolocation not supported");
-    }
-}
+// ✅ INIT MAP
+map = L.map('map').setView([17.385, 78.4867], 13);
 
-// ✅ SHOW CURRENT LOCATION
-function showPosition(position) {
-    let lat = position.coords.latitude;
-    let lon = position.coords.longitude;
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+}).addTo(map);
 
-    currentLat = lat;
-    currentLon = lon;
+// ✅ GET CURRENT LOCATION
+navigator.geolocation.getCurrentPosition(function(position) {
+
+    currentLat = position.coords.latitude;
+    currentLon = position.coords.longitude;
 
     document.getElementById("location").innerHTML =
-        "Latitude: " + lat + "<br>Longitude: " + lon;
+        "Latitude: " + currentLat + "<br>Longitude: " + currentLon;
 
-    if (!map) {
-        map = L.map('map').setView([lat, lon], 15);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'OpenStreetMap'
-        }).addTo(map);
-
-        marker = L.marker([lat, lon]).addTo(map)
-            .bindPopup("You are here")
-            .openPopup();
-    } else {
-        marker.setLatLng([lat, lon]);
-        map.setView([lat, lon], 15);
-    }
-
-    // ✅ AUTO ALERT CHECK
-    checkArrival();
-}
+    marker = L.marker([currentLat, currentLon]).addTo(map);
+    map.setView([currentLat, currentLon], 14);
+});
 
 // ✅ SEARCH LOCATION
-async function searchLocation() {
+function searchLocation() {
+    let place = document.getElementById("searchBox").value;
 
-    const place = document.getElementById("searchBox").value;
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${place}`)
+    .then(res => res.json())
+    .then(data => {
 
-    if (!map) {
-        alert("⚠️ Click Start Tracking first");
-        return;
-    }
+        destLat = parseFloat(data[0].lat);
+        destLon = parseFloat(data[0].lon);
 
-    try {
-        const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?format=json&q=${place}`
-        );
-
-        const data = await response.json();
-
-        if (data.length > 0) {
-
-            destLat = parseFloat(data[0].lat);
-            destLon = parseFloat(data[0].lon);
-
-            map.setView([destLat, destLon], 15);
-
-            L.marker([destLat, destLon]).addTo(map)
-                .bindPopup("Destination: " + place)
-                .openPopup();
-
-            alert("✅ Location found: " + place);
-
-            calculateDistanceAndTime();
-
-        } else {
-            alert("❌ Location not found");
-        }
-
-    } catch (error) {
-        alert("❌ Error in search");
-    }
+        L.marker([destLat, destLon]).addTo(map);
+        map.setView([destLat, destLon], 14);
+        
+  calculateDistanceAndTime(); // ✅ call function
+    });
 }
 
 // ✅ DISTANCE FUNCTION
 function calculateDistance(lat1, lon1, lat2, lon2) {
+
     const R = 6371;
 
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -162,7 +115,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return R * c;
 }
 
-// ✅ DISTANCE + TIME
+// ✅ DISTANCE + TIME (UPDATED ✅ NO ALERT)
 function calculateDistanceAndTime() {
 
     if (currentLat && currentLon && destLat && destLon) {
@@ -172,44 +125,59 @@ function calculateDistanceAndTime() {
         let speed = 30; // km/h
         let time = (distance / speed) * 60;
 
-        alert(
-            "📍 Distance: " + distance.toFixed(2) + " km\n" +
-            "⏱️ Time: " + time.toFixed(1) + " minutes"
-        );
+        // ✅ DISPLAY INSIDE APP
+        document.getElementById("result").innerHTML = `
+            <b>Route Details</b><br><br>
+            📍 Distance: ${distance.toFixed(2)} km <br>
+            ⏱ Time: ${time.toFixed(1)} minutes
+        `;
     }
 }
-
-// ✅ AUTO ALERT WHEN NEAR DESTINATION
+    
+// ✅ ✅ ARRIVAL ALERT + VIBRATION
 function checkArrival() {
+
     if (currentLat && currentLon && destLat && destLon) {
 
         let distance = calculateDistance(currentLat, currentLon, destLat, destLon);
 
-        if (distance < 0.2) { // 200 meters
-            alert("🚨 Get down now! You reached your stop");
+        // ✅ if within 200 meters
+        if (distance < 0.2) {
 
-            // ✅ vibration
+            // ✅ Alert
+            document.getElementById("result").innerHTML = `
+                <b style="color:green;">✅ You reached your stop!</b>
+            `;
+
+            // ✅ Sound
+            let audio = new Audio("https://www.soundjay.com/buttons/beep-07.wav");
+            audio.play();
+
+            // ✅ Vibration (mobile only)
             if (navigator.vibrate) {
-                navigator.vibrate(1000);
+                navigator.vibrate([500, 200, 500]);
             }
-
-            destLat = null;
-            destLon = null;
         }
     }
 }
 
-// ✅ ERROR HANDLING
-function showError() {
-    alert("⚠️ Please allow location access");
-}
+// ✅ ✅ EMERGENCY BUTTON FUNCTION
+function sendEmergency() {
 
-// ✅ EMERGENCY
-function emergency() {
-    alert("🚨 Emergency Alert Sent!");
+    if (currentLat && currentLon) {
+
+        let message = `EMERGENCY! My location:
+https://www.google.com/maps?q=${currentLat},${currentLon}`;
+
+        alert(message); // for now
+
+        // 👉 later you can integrate SMS / WhatsApp API
+    }
 }
 
 </script>
 
 </body>
 </html>
+
+     
