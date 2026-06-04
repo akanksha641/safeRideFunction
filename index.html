@@ -15,7 +15,6 @@
 
 <p id="location"></p>
 
-<!-- ✅ Map will appear here -->
 <iframe id="map"
     width="100%"
     height="300"
@@ -24,27 +23,31 @@
 
 <script>
 
+let watchId;
+
+// ✅ Start LIVE tracking
 function startTracking() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-
-            let lat = position.coords.latitude;
-            let lon = position.coords.longitude;
-
-            // ✅ Show coordinates
-            document.getElementById("location").innerHTML =
-                "📍 Latitude: " + lat + "<br>Longitude: " + lon;
-
-            // ✅ Update map (VERY IMPORTANT LINE)
-            document.getElementById("map").src =
-                "https://maps.google.com/maps?q=" + lat + "," + lon + "&z=15&output=embed";
-
-        });
+        watchId = navigator.geolocation.watchPosition(showPosition);
     } else {
         alert("Geolocation not supported");
     }
 }
 
+// ✅ Update position continuously
+function showPosition(position) {
+    let lat = position.coords.latitude;
+    let lon = position.coords.longitude;
+
+    document.getElementById("location").innerHTML =
+        "📍 Latitude: " + lat + "<br>Longitude: " + lon;
+
+    // ✅ Update map every time you move
+    document.getElementById("map").src =
+        "https://maps.google.com/maps?q=" + lat + "," + lon + "&z=15&output=embed";
+}
+
+// ✅ Emergency button
 function emergency() {
     alert("🚨 Emergency Alert Sent!");
 }
