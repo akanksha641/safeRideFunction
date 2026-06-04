@@ -15,33 +15,41 @@
 
 <p id="location"></p>
 
+<!-- ✅ MAP -->
+<iframe id="map"
+    width="100%"
+    height="300"
+    style="border:0"
+    loading="lazy">
+</iframe>
+
 <script>
 
-// ✅ Start continuous GPS tracking
+// ✅ Start tracking
 function startTracking() {
     if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(showPosition);
-        
-        // ✅ Bus alert after 5 sec (simulation)
-        setTimeout(() => {
-            alert("🚌 Bus stop coming in 5 minutes!");
-        }, 5000);
-
+        navigator.geolocation.getCurrentPosition(showPosition);
     } else {
         alert("Geolocation not supported");
     }
 }
 
-// ✅ Show location continuously
+// ✅ Show location + map
 function showPosition(position) {
     let lat = position.coords.latitude;
     let lon = position.coords.longitude;
 
+    // ✅ Show coordinates
     document.getElementById("location").innerHTML =
         "📍 Latitude: " + lat + "<br>Longitude: " + lon;
+
+    // ✅ Show Google Map
+    let mapURL = `https://maps.google.com/maps?q=${lat},${lon}&z=15&output=embed`;
+
+    document.getElementById("map").src = mapURL;
 }
 
-// ✅ Emergency alert
+// ✅ Emergency
 function emergency() {
     alert("🚨 Emergency Alert Sent!");
 }
