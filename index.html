@@ -15,41 +15,36 @@
 
 <p id="location"></p>
 
-<!-- ✅ MAP -->
+<!-- ✅ Map will appear here -->
 <iframe id="map"
     width="100%"
     height="300"
-    style="border:0"
-    loading="lazy">
+    style="border:1px solid black;">
 </iframe>
 
 <script>
 
-// ✅ Start tracking
 function startTracking() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition);
+        navigator.geolocation.getCurrentPosition(function(position) {
+
+            let lat = position.coords.latitude;
+            let lon = position.coords.longitude;
+
+            // ✅ Show coordinates
+            document.getElementById("location").innerHTML =
+                "📍 Latitude: " + lat + "<br>Longitude: " + lon;
+
+            // ✅ Update map (VERY IMPORTANT LINE)
+            document.getElementById("map").src =
+                "https://maps.google.com/maps?q=" + lat + "," + lon + "&z=15&output=embed";
+
+        });
     } else {
         alert("Geolocation not supported");
     }
 }
 
-// ✅ Show location + map
-function showPosition(position) {
-    let lat = position.coords.latitude;
-    let lon = position.coords.longitude;
-
-    // ✅ Show coordinates
-    document.getElementById("location").innerHTML =
-        "📍 Latitude: " + lat + "<br>Longitude: " + lon;
-
-    // ✅ Show Google Map
-    let mapURL = `https://maps.google.com/maps?q=${lat},${lon}&z=15&output=embed`;
-
-    document.getElementById("map").src = mapURL;
-}
-
-// ✅ Emergency
 function emergency() {
     alert("🚨 Emergency Alert Sent!");
 }
@@ -58,3 +53,4 @@ function emergency() {
 
 </body>
 </html>
+
