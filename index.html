@@ -2,34 +2,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SafeRide Assist</title>
+    <title>Bus Assist App</title>
 
-    <!-- ✅ Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 
     <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+        }
+
         #map {
             height: 400px;
             width: 100%;
+            margin-top: 10px;
+        }
+
+        input {
+            padding: 8px;
+            width: 200px;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin: 5px;
         }
     </style>
 </head>
 
 <body>
 
-<h1>🚍 SafeRide Assist</h1>
+<h2>🚍 Bus Assist App</h2>
 
+<!-- Buttons -->
 <button onclick="startTracking()">Start Tracking</button>
-<br><br>
-
 <button onclick="emergency()">Emergency</button>
 
-<p id="location"></p>
+<br><br>
 
-<!-- ✅ Map Container -->
+<!-- Location Display -->
+<div id="location">Location: Not started</div>
+
+<br>
+
+<!-- ✅ SEARCH BOX -->
+<input type="text" id="searchBox" placeholder="Enter location">
+<button onclick="searchLocation()">Search</button>
+
+<!-- ✅ MAP -->
 <div id="map"></div>
 
-<!-- ✅ Leaflet JS -->
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
@@ -37,7 +61,7 @@
 let map;
 let marker;
 
-// ✅ Start tracking
+// ✅ START GPS TRACKING
 function startTracking() {
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(showPosition);
@@ -46,34 +70,64 @@ function startTracking() {
     }
 }
 
-// ✅ Show and update position
+// ✅ SHOW CURRENT LOCATION
 function showPosition(position) {
     let lat = position.coords.latitude;
     let lon = position.coords.longitude;
 
     document.getElementById("location").innerHTML =
-        "📍 Latitude: " + lat + "<br>Longitude: " + lon;
+        "Latitude: " + lat + "<br>Longitude: " + lon;
 
-    // ✅ First time → create map
+    // First time create map
     if (!map) {
-        map = L.map('map').setView([lat, lon], 15);
+      
+  map = L.map('map').setView([lat, lon], 15);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19
+            attribution: 'Map data © OpenStreetMap'
         }).addTo(map);
 
         marker = L.marker([lat, lon]).addTo(map)
-            .bindPopup("You are here")
-            .openPopup();
-    } 
-    else {
-        // ✅ Move marker
+                  .bindPopup("You are here")
+                  .openPopup();
+
+    } else {
+        // Update position
         marker.setLatLng([lat, lon]);
         map.setView([lat, lon]);
     }
 }
 
-// ✅ Emergency
+// ✅ SEARCH LOCATION FUNCTION
+async function searchLocation() {
+    const place = document.getElementById("searchBox").value;
+
+    const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${place}`
+    );
+
+    const data = await response.json();
+
+    if (data.length > 0) {
+        const lat = data[0].lat;
+        const lon = data[0].lon;
+
+        // Move map to searched location
+        map.setView([lat, lon], 15);
+
+        // Add marker for search
+        L.marker([lat, lon]).addTo(map)
+            .bindPopup("Searched: " + place)
+            .openPopup();
+
+        alert("Location found: " + place);
+
+    } else {
+        alert("Location not found");
+    }
+}
+
+// ✅ EMERGENCY BUTTON
 function emergency() {
     alert("🚨 Emergency Alert Sent!");
 }
@@ -82,4 +136,3 @@ function emergency() {
 
 </body>
 </html>
-
