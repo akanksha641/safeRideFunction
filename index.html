@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,14 +16,23 @@
 <p id="location"></p>
 
 <script>
+
+// ✅ Start continuous GPS tracking
 function startTracking() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition);
+        navigator.geolocation.watchPosition(showPosition);
+        
+        // ✅ Bus alert after 5 sec (simulation)
+        setTimeout(() => {
+            alert("🚌 Bus stop coming in 5 minutes!");
+        }, 5000);
+
     } else {
-        alert("Geolocation is not supported");
+        alert("Geolocation not supported");
     }
 }
 
+// ✅ Show location continuously
 function showPosition(position) {
     let lat = position.coords.latitude;
     let lon = position.coords.longitude;
@@ -31,11 +41,12 @@ function showPosition(position) {
         "📍 Latitude: " + lat + "<br>Longitude: " + lon;
 }
 
+// ✅ Emergency alert
 function emergency() {
     alert("🚨 Emergency Alert Sent!");
 }
+
 </script>
 
 </body>
 </html>
-
