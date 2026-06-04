@@ -1,16 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>SafeRide App</title>
+    <title>SafeRide Assist</title>
 </head>
 <body>
 
 <h1>🚍 SafeRide Assist</h1>
 
-<button onclick="alert('Tracking Started')">Start Tracking</button>
+<button onclick="startTracking()">Start Tracking</button>
 <br><br>
 
-<button onclick="alert('Emergency Alert Sent 🚨')">Emergency</button>
+<button onclick="emergency()">Emergency</button>
+
+<p id="location"></p>
+
+<script>
+function startTracking() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+    } else {
+        alert("Geolocation is not supported");
+    }
+}
+
+function showPosition(position) {
+    let lat = position.coords.latitude;
+    let lon = position.coords.longitude;
+
+    document.getElementById("location").innerHTML =
+        "📍 Latitude: " + lat + "<br>Longitude: " + lon;
+}
+
+function emergency() {
+    alert("🚨 Emergency Alert Sent!");
+}
+</script>
 
 </body>
 </html>
+
