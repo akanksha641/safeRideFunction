@@ -9,13 +9,13 @@ app.post('/location', (req, res) => {
     res.send("Location saved ✅");
 });
 
-// ✅ Emergency API
+// ✅ Emergency alert
 app.post('/alert', (req, res) => {
-    console.log("🚨 Emergency Alert!");
-    res.send("Emergency alert sent 🚨");
+    console.log("🚨 Emergency Alert Triggered!");
+    res.send("Alert sent 🚨");
 });
 
-// ✅ Bus info API
+// ✅ Bus info
 app.get('/bus', (req, res) => {
     res.json({
         stop: "Next Bus Stop",
@@ -25,5 +25,5 @@ app.get('/bus', (req, res) => {
 
 // ✅ Start server
 app.listen(3000, () => {
-    console.log("Server running on port 3000");
+    console.log("✅ Server running on port 3000");
 });
