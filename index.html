@@ -1,11 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>GPS App</title>
+    <title>SafeRide</title>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
     <style>
+        
+<style>
+h1 {
+    text-align: center;
+    color: #1e3a8a;
+    font-size: 40px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+</style>
+
         body {
             font-family: Arial;
             text-align: center;
@@ -110,10 +121,9 @@ function searchLocation() {
 
 
 // ✅ DISTANCE FUNCTION
+
 function calculateDistance(lat1, lon1, lat2, lon2) {
-
-    const R = 6371;
-
+    const R = 6371; // Earth radius in KM
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
 
@@ -121,12 +131,13 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
         Math.cos(lat1 * Math.PI / 180) *
         Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
     return R * c;
 }
+
 
 // ✅ DISTANCE + TIME (UPDATED ✅ NO ALERT)
 function calculateDistanceAndTime() {
