@@ -116,22 +116,18 @@ function searchLocation() {
 
 // ✅ DISTANCE FUNCTION
 
-function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Earth radius in KM
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
+function calculateTimeAndDistance() {
+    if (currentLat && currentLon && destlat && destlon) {
 
-    const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1 * Math.PI / 180) *
-        Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+        let distance = calculateDistance(currentLat, currentLon, destlat, destlon);
+        let speed = 40;
+        let time = (distance / speed) * 60;
 
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+        document.getElementById("result").innerHTML =
+            `Distance: ${distance.toFixed(2)} km <br>
+             Time: ${time.toFixed(1)} min`;
+    }
 }
-
 
 // ✅ DISTANCE + TIME (UPDATED ✅ NO ALERT)
 function calculateDistanceAndTime() {
