@@ -60,7 +60,7 @@ let destLat, destLon;
 let map, marker;
 
 // ✅ INIT MAP
-map = L.map('map').setView([17.385, 78.4867], 13);
+const map = L.map('map').setView([17.4476, 78.3713], 13);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
@@ -80,39 +80,41 @@ navigator.geolocation.getCurrentPosition(function(position) {
 
 // ✅ SEARCH LOCATION
 
-function searchLocation() {
+async function searchLocation() {
     const location = document.getElementById("searchBox").value;
 
-    fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + encodeURIComponent(location))
-    .then(response => response.json())
-    .then(data => {
-        console.log(data); // ✅ see result in console
+    if (!location) {
+        alert("Enter location");
+        return;
+    }
 
-        if (data && data.length > 0) {
+    console.log("Searching:", location); // ✅ check in console
 
-            destlat = parseFloat(data[0].lat);
-            destlon = parseFloat(data[0].lon);
+    const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${location}`
+    );
 
-            // ✅ calculate distance
-            calculateTimeAndDistance();
+    const data = await response.json();
 
-            // ✅ move map
-            map.setView([destlat, destlon], 13);
+    if (data.length === 0) {
+        alert("Location not found");
+        return;
+    }
 
-            // ✅ marker
-            L.marker([destlat, destlon]).addTo(map)
-                .bindPopup(location)
-                .openPopup();
+    const lat = parseFloat(data[0].lat);
+    const lon = parseFloat(data[0].lon);
 
-        } else {
-            alert("No results found");
-        }
-    })
-  
-.catch(error => {
-    console.error("Error:", error);
-});
+    console.log(lat, lon);
+
+    // ✅ Move map
+    map.setView([lat, lon], 13);
+
+    // ✅ Marker
+    L.marker([lat, lon]).addTo(map)
+        .bindPopup(location)
+        .openPopup();
 }
+
 
 // ✅ DISTANCE FUNCTION
 
