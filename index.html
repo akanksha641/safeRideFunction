@@ -40,7 +40,7 @@
 
 <body>
 
-<h2>SafeRide</h2>
+<h1>SafeRide</h1>
 
 <p id="location">Getting location...</p>
 
@@ -89,20 +89,29 @@ function searchLocation() {
         }
     })
     .then(response => response.json())
-    .then(data => {
-        if (data.length > 0) {
-            const lat = data[0].lat;
-            const lon = data[0].lon;
+    
+.then(data => {
+    if (data.length > 0) {
 
-            map.setView([lat, lon], 13);
+        destlat = parseFloat(data[0].lat);
+        destlon = parseFloat(data[0].lon);
 
-            L.marker([lat, lon]).addTo(map)
-              .bindPopup(location)
-              .openPopup();
-        } else {
-            alert("No results found");
-        }
-    })
+        // ✅ Calculate distance & time
+        calculateTimeAndDistance();
+
+        // ✅ Move map correctly
+        map.setView([destlat, destlon], 13);
+
+        // ✅ Add marker
+        L.marker([destlat, destlon]).addTo(map)
+            .bindPopup(location)
+            .openPopup();
+
+    } else {
+        alert("No results found");
+    }
+})
+
     .catch(error => {
         console.error(error);
         alert("Error in search");
