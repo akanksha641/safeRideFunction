@@ -79,46 +79,40 @@ navigator.geolocation.getCurrentPosition(function(position) {
 });
 
 // ✅ SEARCH LOCATION
-    
+
 function searchLocation() {
     const location = document.getElementById("searchBox").value;
 
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${location}`, {
-        headers: {
-            'User-Agent': 'my-app'   // IMPORTANT ✅
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(location)}`)
+    .then(response => response.json())
+    .then(data => {
+
+        if (data.length > 0) {
+
+            destlat = parseFloat(data[0].lat);
+            destlon = parseFloat(data[0].lon);
+
+            // ✅ Calculate distance & time
+            calculateTimeAndDistance();
+
+            // ✅ Move map
+            map.setView([destlat, destlon], 13);
+
+            // ✅ Add marker
+            L.marker([destlat, destlon]).addTo(map)
+                .bindPopup(location)
+                .openPopup();
+
+        } else {
+            alert("No results found");
         }
     })
-    .then(response => response.json())
-    
-.then(data => {
-    if (data.length > 0) {
-
-        destlat = parseFloat(data[0].lat);
-        destlon = parseFloat(data[0].lon);
-
-        // ✅ Calculate distance & time
-        calculateTimeAndDistance();
-
-        // ✅ Move map correctly
-        map.setView([destlat, destlon], 13);
-
-        // ✅ Add marker
-        L.marker([destlat, destlon]).addTo(map)
-            .bindPopup(location)
-            .openPopup();
-
-    } else {
-        alert("No results found");
-    }
-})
-
     .catch(error => {
         console.error(error);
         alert("Error in search");
     });
 }
-
-
+    
 // ✅ DISTANCE FUNCTION
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
