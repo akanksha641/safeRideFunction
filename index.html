@@ -108,10 +108,10 @@ function searchLocation() {
             alert("No results found");
         }
     })
-    .catch(error => {
-        console.error("Fetch Error:", error);
-        alert("Check internet or try different location");
-    });
+  
+.catch(error => {
+    console.error("Error:", error);
+});
 }
 
 // ✅ DISTANCE FUNCTION
