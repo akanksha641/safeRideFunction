@@ -83,22 +83,23 @@ navigator.geolocation.getCurrentPosition(function(position) {
 function searchLocation() {
     const location = document.getElementById("searchBox").value;
 
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(location)}`)
+    fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" + encodeURIComponent(location))
     .then(response => response.json())
     .then(data => {
+        console.log(data); // ✅ see result in console
 
-        if (data.length > 0) {
+        if (data && data.length > 0) {
 
             destlat = parseFloat(data[0].lat);
             destlon = parseFloat(data[0].lon);
 
-            // ✅ Calculate distance & time
+            // ✅ calculate distance
             calculateTimeAndDistance();
 
-            // ✅ Move map
+            // ✅ move map
             map.setView([destlat, destlon], 13);
 
-            // ✅ Add marker
+            // ✅ marker
             L.marker([destlat, destlon]).addTo(map)
                 .bindPopup(location)
                 .openPopup();
@@ -108,11 +109,11 @@ function searchLocation() {
         }
     })
     .catch(error => {
-        console.error(error);
-        alert("Error in search");
+        console.error("Fetch Error:", error);
+        alert("Check internet or try different location");
     });
 }
-    
+
 // ✅ DISTANCE FUNCTION
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
