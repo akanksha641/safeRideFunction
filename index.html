@@ -79,22 +79,36 @@ navigator.geolocation.getCurrentPosition(function(position) {
 });
 
 // ✅ SEARCH LOCATION
+    
 function searchLocation() {
-    let place = document.getElementById("searchBox").value;
+    const location = document.getElementById("searchBox").value;
 
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${place}`)
-    .then(res => res.json())
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${location}`, {
+        headers: {
+            'User-Agent': 'my-app'   // IMPORTANT ✅
+        }
+    })
+    .then(response => response.json())
     .then(data => {
+        if (data.length > 0) {
+            const lat = data[0].lat;
+            const lon = data[0].lon;
 
-        destLat = parseFloat(data[0].lat);
-        destLon = parseFloat(data[0].lon);
+            map.setView([lat, lon], 13);
 
-        L.marker([destLat, destLon]).addTo(map);
-        map.setView([destLat, destLon], 14);
-        
-  calculateDistanceAndTime(); // ✅ call function
+            L.marker([lat, lon]).addTo(map)
+              .bindPopup(location)
+              .openPopup();
+        } else {
+            alert("No results found");
+        }
+    })
+    .catch(error => {
+        console.error(error);
+        alert("Error in search");
     });
 }
+
 
 // ✅ DISTANCE FUNCTION
 function calculateDistance(lat1, lon1, lat2, lon2) {
